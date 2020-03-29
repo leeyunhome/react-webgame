@@ -1,0 +1,181 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>GuGuDan</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    </head>
+    <body>
+        <p id="status">OpenCV.js is loading...</p>
+        <div id="root"></div>  <!-- 결과: <div id="root"><button>Like</button></div> -->
+        <div>
+            <video id="videoInput" width="320" height="240"></video>
+            <canvas id="canvasOutput" width="320" height="240"></canvas>
+            <canvas id="canvasFrame" width="320" height="240"></canvas>
+            <img id="imageSrc" alt="No Image" />
+            <input type="file" id = "fileInput" name="file" />
+        </div>
+        <script type="text/babel">
+            class GuGuDan extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        first: Math.ceil(Math.random() * 9),
+                        second: Math.ceil(Math.random() * 9),
+                        value: '',
+                        result: '',
+                    };
+                }
+
+                onSubmit = (e) => {
+                    e.preventDefault();
+                    if (parseInt(this.state.value) === this.state.first * this.state.second) {
+                        this.setState({
+                            result: '정답',
+                            first: Math.ceil(Math.random() * 9),
+                            second: Math.ceil(Math.random() * 9),
+                            value: '',
+                        });
+                    } else {
+                        this.setState({
+                            result: '땡',
+                            value: '',
+
+                        });
+                    }
+                }
+
+                onChange = (e) => {
+                    this.setState({value: e.target.value});
+                }
+
+                render() {
+                    return (
+                        <div>
+                            <div>{this.state.first}곱하기{this.state.second}는?</div>
+                            <form onSubmit = {this.onSubmit}>
+                                <input type="number" value={this.state.value} onChange={this.onChange}/>
+                                <button>입력!</button>
+                            </form>
+                            <div>{this.state.result}</div>
+                        </div>
+                    );
+                }
+            }
+        </script>
+        <script type="text/babel">
+            ReactDOM.render(<GuGuDan />, document.querySelector('#root'));
+        </script>
+        <script>
+            // let video = document.getElementById("videoInput");
+            // navigator.mediaDevices.getUserMedia({ video: true, audio: false})
+            //     .then(function(stream) {
+            //         video.srcObject = stream;
+            //         video.play();
+            //     })
+            //     .catch(function(err) {
+            //         console.log("An error occurred! " + err);
+            //     });
+            
+            // // Playing video
+            // let canvasFrame = document.getElementById("canvasFrame");
+            // let context = canvasFrame.getContext("2d");
+
+            // const cv = require("./src/opencv");
+            // cv['onRuntimeInitialized'] = () => {
+            //     let mat = new cv.Mat();
+            //     console.log(mat.size());
+            //     mat.delete();
+            // }
+
+            // let src = new cv.Mat(height, width, cv.CV_8UC4);
+            // let dst = new cv.Mat(height, width, cv.CV_8UC1);
+
+            // const FPS = 30;
+            // function processVideo() {
+            //     let begin = Date.now();
+            //     context.drawImage(video, 0, 0, width, height);
+            //     src.data.set(context.getImageData(0, 0, width, height).data);
+            //     cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+            //     cv.imshow("convasOutput", dst);
+            //     // schedule next one.
+            //     let delay = 1000/FPS - (Date.now() - begin);
+            //     setTimeout(processVideo, delay);
+            // }
+
+            // //schedule first one.
+            // setTimeout(processVideo, 0);
+
+
+            // let imgElement = document.getElementById('imageSrc');
+            // let inputElement = document.getElementById('fileInput');
+            // inputElement.addEventListener('change', (e) => {
+            //     imgElement.src = URL.createObjectURL(e.target.files[0]);
+            // }, false);
+
+            // image showing using opencv script
+            // imgElement.onload = function() {
+            //     let mat = cv.imread(imgElement);
+            //     // let mat1 = cv.Mat.ones(7, 7, cv.CV_8UC1),
+            //     //     mat2 = new cv.Mat();
+
+            //     cv.imshow('canvasOutput', mat);
+            //     mat.delete();
+            // };
+            
+
+            // function onOpenCvReady() {
+            //     document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+            // }
+        </script>
+        <script type="text/javascript">
+            function onOpenCvReady()
+            {
+                let video = document.getElementById("videoInput");
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false})
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred! " + err);
+                });
+            
+            // Playing video
+            let canvasFrame = document.getElementById("canvasFrame");
+            let context = canvasFrame.getContext("2d");
+
+            // const cv = require("./src/opencv");
+            // cv['onRuntimeInitialized'] = () => {
+            //     let mat = new cv.Mat();
+            //     console.log(mat.size());
+            //     mat.delete();
+            // }
+
+            let src = new cv.Mat(100, 100, cv.CV_8UC4);
+            let dst = new cv.Mat(100, 100, cv.CV_8UC1);
+
+            const FPS = 30;
+            function processVideo() {
+                let begin = Date.now();
+                context.drawImage(video, 0, 0, 100, 100);
+                src.data.set(context.getImageData(0, 0, 100, 100).data);
+                cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+                
+                cv.imshow("canvasOutput", dst);
+                // schedule next one.
+                let delay = 1000/FPS - (Date.now() - begin);
+                setTimeout(processVideo, delay);
+            }
+
+            //schedule first one.
+            setTimeout(processVideo, 0);
+            }
+
+        </script>
+        <script async src="./src/opencv2.js" onload="onOpenCvReady();" type="text/javascript"></script>
+        <!-- <script src="./src/utils.js" type="text/javascript"></script> -->
+        <!-- <script src="./src/opencv.js"type="text/javascript"></script> -->
+    </body>
+</html>
